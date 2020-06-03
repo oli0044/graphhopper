@@ -477,52 +477,6 @@ public class Measurement {
                 }
             }.setIterations(count).start();
             print("unit_testsCH.get_weight", miniPerf);
-
-            gcAndWait();
-            int countForNew = 1000 * count;
-            RoutingCHGraphImpl routingCHGraph = new RoutingCHGraphImpl(lg, chWeighting);
-            final RoutingCHEdgeExplorer chOutEdgeExplorer = routingCHGraph.createOutEdgeExplorer();
-            miniPerf = new MiniPerfTest() {
-                @Override
-                public int doCalc(boolean warmup, int run) {
-                    int nodeId = rand.nextInt(maxNode);
-                    RoutingCHEdgeIterator iter = chOutEdgeExplorer.setBaseNode(nodeId);
-                    while (iter.next()) {
-                        nodeId += iter.getAdjNode();
-                    }
-                    return nodeId;
-                }
-            }.setIterations(countForNew).start();
-            print("unit_testsCH.out_edge_next", miniPerf);
-
-            gcAndWait();
-            miniPerf = new MiniPerfTest() {
-                @Override
-                public int doCalc(boolean warmup, int run) {
-                    int nodeId = rand.nextInt(maxNode);
-                    RoutingCHEdgeIterator iter = chOutEdgeExplorer.setBaseNode(nodeId);
-                    while (iter.next()) {
-                        nodeId += iter.getWeight(false);
-                    }
-                    return nodeId;
-                }
-            }.setIterations(countForNew).start();
-            print("unit_testsCH.out_edge_get_weight", miniPerf);
-
-            gcAndWait();
-            final RoutingCHEdgeExplorer chOrigEdgeExplorer = routingCHGraph.createOriginalOutEdgeExplorer();
-            miniPerf = new MiniPerfTest() {
-                @Override
-                public int doCalc(boolean warmup, int run) {
-                    int nodeId = rand.nextInt(maxNode);
-                    RoutingCHEdgeIterator iter = chOrigEdgeExplorer.setBaseNode(nodeId);
-                    while (iter.next()) {
-                        nodeId += iter.getAdjNode();
-                    }
-                    return nodeId;
-                }
-            }.setIterations(countForNew).start();
-            print("unit_testsCH.out_orig_edge_next", miniPerf);
         }
 
         gcAndWait();
