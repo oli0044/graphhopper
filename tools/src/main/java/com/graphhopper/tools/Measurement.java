@@ -244,6 +244,8 @@ public class Measurement {
                     CHGraph lg = g.getCHGraph(chConfig.getName());
                     fillAllowedEdges(lg.getAllEdges(), allowedEdges);
                     printMiscUnitPerfTests(lg, isCH, chConfig.getWeighting(), encoder, count * 100, allowedEdges);
+                    allowedEdges.clear();
+                    allowedEdges = null;
                     printTimeOfRouteQuery(hopper, new QuerySettings("routingCH", count, isCH, isLM).
                             withInstructions().sod());
                     printTimeOfRouteQuery(hopper, new QuerySettings("routingCH_alt", count / 10, isCH, isLM).
