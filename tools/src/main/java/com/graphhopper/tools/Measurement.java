@@ -37,6 +37,7 @@ import com.graphhopper.routing.util.spatialrules.AbstractSpatialRule;
 import com.graphhopper.routing.util.spatialrules.SpatialRuleLookup;
 import com.graphhopper.routing.util.spatialrules.SpatialRuleLookupBuilder;
 import com.graphhopper.routing.util.spatialrules.SpatialRuleLookupBuilder.SpatialRuleFactory;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.routing.weighting.custom.CustomProfile;
 import com.graphhopper.routing.weighting.custom.CustomWeighting;
 import com.graphhopper.storage.*;
@@ -199,7 +200,7 @@ public class Measurement {
 
             final boolean runSlow = args.getBool("measurement.run_slow_routing", true);
             GHBitSet allowedEdges = printGraphDetails(g, vehicleStr);
-            printMiscUnitPerfTests(g, false, encoder, count * 100, allowedEdges);
+            printMiscUnitPerfTests(g, false, null, encoder, count * 100, allowedEdges);
             printLocationIndexQuery(g, hopper.getLocationIndex(), count);
 
             if (runSlow) {
@@ -216,7 +217,6 @@ public class Measurement {
             }
 
             if (hopper.getLMPreparationHandler().isEnabled()) {
-                System.gc();
                 boolean isCH = false;
                 boolean isLM = true;
                 Helper.parseList(args.getString("measurement.lm.active_counts", "[4,8,12,16]")).stream()
@@ -239,12 +239,11 @@ public class Measurement {
                 boolean isCH = true;
                 boolean isLM = false;
 //                compareCHWithAndWithoutSOD(hopper, count/5);
-                System.gc();
                 if (!hopper.getCHPreparationHandler().getNodeBasedCHConfigs().isEmpty()) {
                     CHConfig chConfig = hopper.getCHPreparationHandler().getNodeBasedCHConfigs().get(0);
                     CHGraph lg = g.getCHGraph(chConfig.getName());
                     fillAllowedEdges(lg.getAllEdges(), allowedEdges);
-                    printMiscUnitPerfTests(lg, isCH, encoder, count * 100, allowedEdges);
+                    printMiscUnitPerfTests(lg, isCH, chConfig.getWeighting(), encoder, count * 100, allowedEdges);
                     printTimeOfRouteQuery(hopper, new QuerySettings("routingCH", count, isCH, isLM).
                             withInstructions().sod());
                     printTimeOfRouteQuery(hopper, new QuerySettings("routingCH_alt", count / 10, isCH, isLM).
@@ -279,7 +278,7 @@ public class Measurement {
             put("measurement.count", count);
             put("measurement.seed", seed);
             put("measurement.time", sw.stop().getMillis());
-            System.gc();
+            gcAndWait();
             put("measurement.totalMB", getTotalMB());
             put("measurement.usedMB", getUsedMB());
 
@@ -421,6 +420,7 @@ public class Measurement {
     }
 
     private void printLocationIndexQuery(Graph g, final LocationIndex idx, int count) {
+        gcAndWait();
         count *= 2;
         final BBox bbox = g.getBounds();
         final double latDelta = bbox.maxLat - bbox.minLat;
@@ -442,12 +442,13 @@ public class Measurement {
         print("location_index", miniPerf);
     }
 
-    private void printMiscUnitPerfTests(final Graph graph, boolean isCH, final FlagEncoder encoder,
+    private void printMiscUnitPerfTests(final Graph graph, boolean isCH, Weighting chWeighting, final FlagEncoder encoder,
                                         int count, final GHBitSet allowedEdges) {
         final Random rand = new Random(seed);
         String description = "";
         if (isCH) {
             description = "CH";
+            gcAndWait();
             CHGraph lg = (CHGraph) graph;
             final CHEdgeExplorer chExplorer = lg.createEdgeExplorer(new LevelEdgeFilter(lg));
             MiniPerfTest miniPerf = new MiniPerfTest() {
@@ -459,6 +460,7 @@ public class Measurement {
             }.setIterations(count).start();
             print("unit_testsCH.level_edge_state_next", miniPerf);
 
+            gcAndWait();
             final CHEdgeExplorer chExplorer2 = lg.createEdgeExplorer();
             miniPerf = new MiniPerfTest() {
                 @Override
@@ -473,8 +475,54 @@ public class Measurement {
                 }
             }.setIterations(count).start();
             print("unit_testsCH.get_weight", miniPerf);
+
+            gcAndWait();
+            RoutingCHGraphImpl routingCHGraph = new RoutingCHGraphImpl(lg, chWeighting);
+            final RoutingCHEdgeExplorer chOutEdgeExplorer = routingCHGraph.createOutEdgeExplorer();
+            miniPerf = new MiniPerfTest() {
+                @Override
+                public int doCalc(boolean warmup, int run) {
+                    int nodeId = rand.nextInt(maxNode);
+                    RoutingCHEdgeIterator iter = chOutEdgeExplorer.setBaseNode(nodeId);
+                    while (iter.next()) {
+                        nodeId += iter.getAdjNode();
+                    }
+                    return nodeId;
+                }
+            }.setIterations(count).start();
+            print("unit_testsCH.out_edge_next", miniPerf);
+
+            gcAndWait();
+            miniPerf = new MiniPerfTest() {
+                @Override
+                public int doCalc(boolean warmup, int run) {
+                    int nodeId = rand.nextInt(maxNode);
+                    RoutingCHEdgeIterator iter = chOutEdgeExplorer.setBaseNode(nodeId);
+                    while (iter.next()) {
+                        nodeId += iter.getWeight(false);
+                    }
+                    return nodeId;
+                }
+            }.setIterations(count).start();
+            print("unit_testsCH.out_edge_get_weight", miniPerf);
+
+            gcAndWait();
+            final RoutingCHEdgeExplorer chOrigEdgeExplorer = routingCHGraph.createOriginalOutEdgeExplorer();
+            miniPerf = new MiniPerfTest() {
+                @Override
+                public int doCalc(boolean warmup, int run) {
+                    int nodeId = rand.nextInt(maxNode);
+                    RoutingCHEdgeIterator iter = chOrigEdgeExplorer.setBaseNode(nodeId);
+                    while (iter.next()) {
+                        nodeId += iter.getAdjNode();
+                    }
+                    return nodeId;
+                }
+            }.setIterations(count).start();
+            print("unit_testsCH.out_orig_edge_next", miniPerf);
         }
 
+        gcAndWait();
         EdgeFilter outFilter = DefaultEdgeFilter.outEdges(encoder);
         final EdgeExplorer outExplorer = graph.createEdgeExplorer(outFilter);
         MiniPerfTest miniPerf = new MiniPerfTest() {
@@ -486,6 +534,7 @@ public class Measurement {
         }.setIterations(count).start();
         print("unit_tests" + description + ".out_edge_state_next", miniPerf);
 
+        gcAndWait();
         final EdgeExplorer allExplorer = graph.createEdgeExplorer();
         miniPerf = new MiniPerfTest() {
             @Override
@@ -496,6 +545,7 @@ public class Measurement {
         }.setIterations(count).start();
         print("unit_tests" + description + ".all_edge_state_next", miniPerf);
 
+        gcAndWait();
         final int maxEdgesId = graph.getAllEdges().length();
         miniPerf = new MiniPerfTest() {
             @Override
@@ -545,6 +595,7 @@ public class Measurement {
             randomPoints.add(new GHPoint(lat, lon));
         }
 
+        gcAndWait();
         MiniPerfTest lookupPerfTest = new MiniPerfTest() {
             @Override
             public int doCalc(boolean warmup, int run) {
@@ -665,6 +716,7 @@ public class Measurement {
         final Random rand = new Random(seed);
         final NodeAccess na = g.getNodeAccess();
 
+        gcAndWait();
         MiniPerfTest miniPerf = new MiniPerfTest() {
             @Override
             public int doCalc(boolean warmup, int run) {
