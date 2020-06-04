@@ -479,7 +479,7 @@ public class Measurement {
             print("unit_testsCH.get_weight", miniPerf);
 
             gcAndWait();
-            int countForNew = 0;
+            int countForNew = count;
             RoutingCHGraphImpl routingCHGraph = new RoutingCHGraphImpl(lg, chWeighting);
             final RoutingCHEdgeExplorer chOutEdgeExplorer = routingCHGraph.createOutEdgeExplorer();
             miniPerf = new MiniPerfTest() {
