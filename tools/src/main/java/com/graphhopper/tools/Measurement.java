@@ -200,8 +200,8 @@ public class Measurement {
 
             final boolean runSlow = args.getBool("measurement.run_slow_routing", true);
             GHBitSet allowedEdges = printGraphDetails(g, vehicleStr);
-            printMiscUnitPerfTests(g, false, null, encoder, count * 100, allowedEdges);
-            printLocationIndexQuery(g, hopper.getLocationIndex(), count);
+//            printMiscUnitPerfTests(g, false, null, encoder, count * 100, allowedEdges);
+//            printLocationIndexQuery(g, hopper.getLocationIndex(), count);
 
             if (runSlow) {
                 boolean isCH = false;
@@ -249,16 +249,16 @@ public class Measurement {
                     gcAndWait();
                     printTimeOfRouteQuery(hopper, new QuerySettings("routingCH", count, isCH, isLM).
                             withInstructions().sod());
-                    printTimeOfRouteQuery(hopper, new QuerySettings("routingCH_alt", count / 10, isCH, isLM).
-                            withInstructions().sod().alternative());
-                    printTimeOfRouteQuery(hopper, new QuerySettings("routingCH_with_hints", count, isCH, isLM).
-                            withInstructions().sod().withPointHints());
-                    printTimeOfRouteQuery(hopper, new QuerySettings("routingCH_no_sod", count, isCH, isLM).
-                            withInstructions());
-                    printTimeOfRouteQuery(hopper, new QuerySettings("routingCH_no_instr", count, isCH, isLM).
-                            sod());
-                    printTimeOfRouteQuery(hopper, new QuerySettings("routingCH_full", count, isCH, isLM).
-                            withInstructions().withPointHints().sod().simplify());
+//                    printTimeOfRouteQuery(hopper, new QuerySettings("routingCH_alt", count / 10, isCH, isLM).
+//                            withInstructions().sod().alternative());
+//                    printTimeOfRouteQuery(hopper, new QuerySettings("routingCH_with_hints", count, isCH, isLM).
+//                            withInstructions().sod().withPointHints());
+//                    printTimeOfRouteQuery(hopper, new QuerySettings("routingCH_no_sod", count, isCH, isLM).
+//                            withInstructions());
+//                    printTimeOfRouteQuery(hopper, new QuerySettings("routingCH_no_instr", count, isCH, isLM).
+//                            sod());
+//                    printTimeOfRouteQuery(hopper, new QuerySettings("routingCH_full", count, isCH, isLM).
+//                            withInstructions().withPointHints().sod().simplify());
                 }
                 if (!hopper.getCHPreparationHandler().getEdgeBasedCHConfigs().isEmpty()) {
                     printTimeOfRouteQuery(hopper, new QuerySettings("routingCH_edge", count, isCH, isLM).
@@ -476,47 +476,47 @@ public class Measurement {
             }.setIterations(count).start();
             print("unit_testsCH.get_weight", miniPerf);
 
-            RoutingCHGraphImpl routingCHGraph = new RoutingCHGraphImpl(lg, chWeighting);
-            final RoutingCHEdgeExplorer chOutEdgeExplorer = routingCHGraph.createOutEdgeExplorer();
-            miniPerf = new MiniPerfTest() {
-                @Override
-                public int doCalc(boolean warmup, int run) {
-                    int nodeId = rand.nextInt(maxNode);
-                    RoutingCHEdgeIterator iter = chOutEdgeExplorer.setBaseNode(nodeId);
-                    while (iter.next()) {
-                        nodeId += iter.getAdjNode();
-                    }
-                    return nodeId;
-                }
-            }.setIterations(count).start();
-            print("unit_testsCH.out_edge_next", miniPerf);
-
-            miniPerf = new MiniPerfTest() {
-                @Override
-                public int doCalc(boolean warmup, int run) {
-                    int nodeId = rand.nextInt(maxNode);
-                    RoutingCHEdgeIterator iter = chOutEdgeExplorer.setBaseNode(nodeId);
-                    while (iter.next()) {
-                        nodeId += iter.getWeight(false);
-                    }
-                    return nodeId;
-                }
-            }.setIterations(count).start();
-            print("unit_testsCH.out_edge_get_weight", miniPerf);
-
-            final RoutingCHEdgeExplorer chOrigEdgeExplorer = routingCHGraph.createOriginalOutEdgeExplorer();
-            miniPerf = new MiniPerfTest() {
-                @Override
-                public int doCalc(boolean warmup, int run) {
-                    int nodeId = rand.nextInt(maxNode);
-                    RoutingCHEdgeIterator iter = chOrigEdgeExplorer.setBaseNode(nodeId);
-                    while (iter.next()) {
-                        nodeId += iter.getAdjNode();
-                    }
-                    return nodeId;
-                }
-            }.setIterations(count).start();
-            print("unit_testsCH.out_orig_edge_next", miniPerf);
+//            RoutingCHGraphImpl routingCHGraph = new RoutingCHGraphImpl(lg, chWeighting);
+//            final RoutingCHEdgeExplorer chOutEdgeExplorer = routingCHGraph.createOutEdgeExplorer();
+//            miniPerf = new MiniPerfTest() {
+//                @Override
+//                public int doCalc(boolean warmup, int run) {
+//                    int nodeId = rand.nextInt(maxNode);
+//                    RoutingCHEdgeIterator iter = chOutEdgeExplorer.setBaseNode(nodeId);
+//                    while (iter.next()) {
+//                        nodeId += iter.getAdjNode();
+//                    }
+//                    return nodeId;
+//                }
+//            }.setIterations(count).start();
+//            print("unit_testsCH.out_edge_next", miniPerf);
+//
+//            miniPerf = new MiniPerfTest() {
+//                @Override
+//                public int doCalc(boolean warmup, int run) {
+//                    int nodeId = rand.nextInt(maxNode);
+//                    RoutingCHEdgeIterator iter = chOutEdgeExplorer.setBaseNode(nodeId);
+//                    while (iter.next()) {
+//                        nodeId += iter.getWeight(false);
+//                    }
+//                    return nodeId;
+//                }
+//            }.setIterations(count).start();
+//            print("unit_testsCH.out_edge_get_weight", miniPerf);
+//
+//            final RoutingCHEdgeExplorer chOrigEdgeExplorer = routingCHGraph.createOriginalOutEdgeExplorer();
+//            miniPerf = new MiniPerfTest() {
+//                @Override
+//                public int doCalc(boolean warmup, int run) {
+//                    int nodeId = rand.nextInt(maxNode);
+//                    RoutingCHEdgeIterator iter = chOrigEdgeExplorer.setBaseNode(nodeId);
+//                    while (iter.next()) {
+//                        nodeId += iter.getAdjNode();
+//                    }
+//                    return nodeId;
+//                }
+//            }.setIterations(count).start();
+//            print("unit_testsCH.out_orig_edge_next", miniPerf);
         }
 
         EdgeFilter outFilter = DefaultEdgeFilter.outEdges(encoder);
@@ -878,6 +878,9 @@ public class Measurement {
         result.put("metrics", properties);
         try {
             File file = new File(jsonLocation);
+            System.out.println(new ObjectMapper()
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(result));
             new ObjectMapper()
                     .writerWithDefaultPrettyPrinter()
                     .writeValue(file, result);
@@ -922,29 +925,29 @@ public class Measurement {
         String[] properties = {
                 "graph.nodes",
                 "graph.edges",
-                "graph.import_time",
-                CH.PREPARE + "time",
-                CH.PREPARE + "node.time",
-                CH.PREPARE + "edge.time",
-                CH.PREPARE + "node.shortcuts",
-                CH.PREPARE + "edge.shortcuts",
-                Landmark.PREPARE + "time",
-                "routing.distance_mean",
-                "routing.mean",
-                "routing.visited_nodes_mean",
+//                "graph.import_time",
+//                CH.PREPARE + "time",
+//                CH.PREPARE + "node.time",
+//                CH.PREPARE + "edge.time",
+//                CH.PREPARE + "node.shortcuts",
+//                CH.PREPARE + "edge.shortcuts",
+//                Landmark.PREPARE + "time",
+//                "routing.distance_mean",
+//                "routing.mean",
+//                "routing.visited_nodes_mean",
                 "routingCH.distance_mean",
                 "routingCH.mean",
                 "routingCH.visited_nodes_mean",
-                "routingCH_no_instr.mean",
-                "routingCH_full.mean",
-                "routingCH_edge.distance_mean",
-                "routingCH_edge.mean",
-                "routingCH_edge.visited_nodes_mean",
-                "routingCH_edge_no_instr.mean",
-                "routingCH_edge_full.mean",
-                "routingLM8.distance_mean",
-                "routingLM8.mean",
-                "routingLM8.visited_nodes_mean",
+//                "routingCH_no_instr.mean",
+//                "routingCH_full.mean",
+//                "routingCH_edge.distance_mean",
+//                "routingCH_edge.mean",
+//                "routingCH_edge.visited_nodes_mean",
+//                "routingCH_edge_no_instr.mean",
+//                "routingCH_edge_full.mean",
+//                "routingLM8.distance_mean",
+//                "routingLM8.mean",
+//                "routingLM8.visited_nodes_mean",
                 "measurement.seed",
                 "measurement.gitinfo",
                 "measurement.timestamp"
