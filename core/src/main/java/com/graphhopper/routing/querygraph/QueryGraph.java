@@ -17,6 +17,9 @@
  */
 package com.graphhopper.routing.querygraph;
 
+import com.graphhopper.api.util.Helper;
+import com.graphhopper.api.util.AngleCalc;
+import com.graphhopper.api.util.PointList;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.procedures.IntObjectProcedure;
 import com.graphhopper.coll.GHIntObjectHashMap;
@@ -29,8 +32,11 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.storage.TurnCostStorage;
 import com.graphhopper.storage.index.QueryResult;
-import com.graphhopper.util.*;
-import com.graphhopper.util.shapes.BBox;
+import com.graphhopper.api.util.shapes.BBox;
+import com.graphhopper.util.EdgeExplorer;
+import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.FetchMode;
 
 import java.util.*;
 

@@ -17,9 +17,18 @@
  */
 package com.graphhopper;
 
-import com.graphhopper.config.CHProfile;
-import com.graphhopper.config.LMProfile;
-import com.graphhopper.config.Profile;
+import com.graphhopper.api.util.Helper;
+import com.graphhopper.api.routing.util.CustomModel;
+import com.graphhopper.api.GraphHopperAPI;
+import com.graphhopper.api.util.Parameters;
+import com.graphhopper.api.util.DistanceCalc;
+import com.graphhopper.api.GraphHopperConfig;
+import com.graphhopper.api.GHRequest;
+import com.graphhopper.api.GHResponse;
+import com.graphhopper.api.util.PMap;
+import com.graphhopper.api.config.CHProfile;
+import com.graphhopper.api.config.LMProfile;
+import com.graphhopper.api.config.Profile;
 import com.graphhopper.reader.DataReader;
 import com.graphhopper.reader.dem.*;
 import com.graphhopper.reader.osm.conditional.DateRangeParser;
@@ -42,7 +51,6 @@ import com.graphhopper.routing.template.AlternativeRoutingTemplate;
 import com.graphhopper.routing.template.RoundTripRoutingTemplate;
 import com.graphhopper.routing.template.RoutingTemplate;
 import com.graphhopper.routing.template.ViaRoutingTemplate;
-import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.util.parsers.DefaultTagParserFactory;
 import com.graphhopper.routing.util.parsers.TagParserFactory;
 import com.graphhopper.routing.weighting.*;
@@ -52,15 +60,14 @@ import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.QueryResult;
-import com.graphhopper.util.*;
-import com.graphhopper.util.Parameters.CH;
-import com.graphhopper.util.Parameters.Landmark;
-import com.graphhopper.util.Parameters.Routing;
+import com.graphhopper.api.util.Parameters.CH;
+import com.graphhopper.api.util.Parameters.Landmark;
+import com.graphhopper.api.util.Parameters.Routing;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
-import com.graphhopper.util.exceptions.PointDistanceExceededException;
-import com.graphhopper.util.exceptions.PointOutOfBoundsException;
-import com.graphhopper.util.shapes.BBox;
-import com.graphhopper.util.shapes.GHPoint;
+import com.graphhopper.api.util.exceptions.PointDistanceExceededException;
+import com.graphhopper.api.util.exceptions.PointOutOfBoundsException;
+import com.graphhopper.api.util.shapes.BBox;
+import com.graphhopper.api.util.shapes.GHPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,10 +78,23 @@ import java.util.*;
 
 import static com.graphhopper.routing.weighting.TurnCostProvider.NO_TURN_COST_PROVIDER;
 import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
-import static com.graphhopper.util.Helper.*;
-import static com.graphhopper.util.Parameters.Algorithms.*;
-import static com.graphhopper.util.Parameters.Routing.CURBSIDE;
-import static com.graphhopper.util.Parameters.Routing.POINT_HINT;
+import static com.graphhopper.api.util.Helper.*;
+import static com.graphhopper.api.util.Parameters.Algorithms.*;
+import static com.graphhopper.api.util.Parameters.Routing.CURBSIDE;
+import static com.graphhopper.api.util.Parameters.Routing.POINT_HINT;
+import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.DefaultFlagEncoderFactory;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.FlagEncoderFactory;
+import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.util.Constants;
+import com.graphhopper.util.DouglasPeucker;
+import com.graphhopper.util.GHUtility;
+import com.graphhopper.util.PathMerger;
+import com.graphhopper.util.StopWatch;
+import com.graphhopper.util.TranslationMap;
+import com.graphhopper.util.Unzipper;
 
 /**
  * Easy to use access point to configure import and (offline) routing.

@@ -20,7 +20,7 @@ package com.graphhopper.reader.gtfs;
 
 import com.conveyal.gtfs.GTFSFeed;
 import com.conveyal.gtfs.model.Transfer;
-import com.graphhopper.GraphHopperConfig;
+import com.graphhopper.api.GraphHopperConfig;
 import com.graphhopper.reader.DataReader;
 import com.graphhopper.reader.dem.ElevationProvider;
 import com.graphhopper.reader.osm.GraphHopperOSM;
@@ -33,7 +33,7 @@ import com.graphhopper.storage.RAMDirectory;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.QueryResult;
-import com.graphhopper.util.PointList;
+import com.graphhopper.api.util.PointList;
 
 import java.io.File;
 import java.io.IOException;

@@ -17,10 +17,11 @@
  */
 package com.graphhopper.util;
 
+import com.graphhopper.api.util.DistanceCalcEarth;
 import static java.lang.Math.sqrt;
 
-import com.graphhopper.util.shapes.BBox;
-import com.graphhopper.util.shapes.GHPoint;
+import com.graphhopper.api.util.shapes.BBox;
+import com.graphhopper.api.util.shapes.GHPoint;
 
 /**
  * Calculates the distance of two points or one point and an edge in euclidean space.

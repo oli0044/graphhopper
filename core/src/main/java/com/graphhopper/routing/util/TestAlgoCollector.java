@@ -17,15 +17,23 @@
  */
 package com.graphhopper.routing.util;
 
-import com.graphhopper.ResponsePath;
-import com.graphhopper.routing.*;
+import com.graphhopper.api.util.Helper;
+import com.graphhopper.api.util.DistanceCalc;
+import com.graphhopper.api.util.PointList;
+import com.graphhopper.api.ResponsePath;
 import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.QueryResult;
-import com.graphhopper.util.*;
-import com.graphhopper.util.shapes.GHPoint;
+import com.graphhopper.api.util.shapes.GHPoint;
+import com.graphhopper.routing.AlgorithmOptions;
+import com.graphhopper.routing.Path;
+import com.graphhopper.routing.RoutingAlgorithm;
+import com.graphhopper.routing.RoutingAlgorithmFactory;
+import com.graphhopper.routing.RoutingAlgorithmFactorySimple;
+import com.graphhopper.util.PathMerger;
+import com.graphhopper.util.TranslationMap;
 
 import java.util.ArrayList;
 import java.util.List;

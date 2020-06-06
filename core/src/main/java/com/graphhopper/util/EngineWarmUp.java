@@ -17,7 +17,7 @@
  */
 package com.graphhopper.util;
 
-import com.graphhopper.GHRequest;
+import com.graphhopper.api.GHRequest;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.coll.GHBitSet;
 import com.graphhopper.coll.GHTBitSet;
